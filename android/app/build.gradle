@@ -2,7 +2,6 @@ plugins {
     id "com.android.application"
     id "org.jetbrains.kotlin.android"
     id "dev.flutter.flutter-gradle-plugin"
-    id "com.google.gms.google-services"
 }
 
 def localProperties = new Properties()
@@ -20,7 +19,7 @@ def flutterVersionName = localProperties.getProperty("flutter.versionName") ?: "
 android {
     namespace "com.example.room_mates"
 
-    compileSdk 34
+    compileSdk 35
 
     ndkVersion flutter.ndkVersion
 
@@ -28,7 +27,7 @@ android {
         applicationId "com.example.room_mates"
 
         minSdk 23
-        targetSdk 34
+        targetSdk 35
 
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
@@ -70,12 +69,5 @@ flutter {
 }
 
 dependencies {
-
-    implementation platform("com.google.firebase:firebase-bom:33.4.0")
-
-    implementation "com.google.firebase:firebase-analytics"
-
-    implementation "com.google.firebase:firebase-database"
-
     implementation "androidx.multidex:multidex:2.0.1"
 }

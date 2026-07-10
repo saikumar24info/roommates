@@ -1,21 +1,39 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:room_mates/screens/login/bloc/login_event.dart';
 import 'package:room_mates/screens/login/bloc/login_state.dart';
+import 'package:room_mates/services/auth_service.dart';
 
 import '../../../global.dart';
 import '../../../utils/shared_prefs.dart';
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
-  LoginBloc() : super(GoogleLoginLoadingState()) {
-    on<GoogleLoginEvent>((event, emit) async {
-      emit(GoogleLoginLoadingState());
+  LoginBloc() : super(LoginInitialState()) {
+    on<LoginWithEmailEvent>((event, emit) async {
+      emit(LoginLoadingState());
       try {
-        User? user = await userGoogleSignup.signInWithGoogle();
-        await AppLocalPrefs.setUserDetails(user);
-        emit(GoogleLoginLoadedState(user: user));
+        final user = await authService.signInWithEmail(
+          event.email,
+          event.password,
+        );
+
+        final profile = await profileService.fetchProfile(user.uid);
+        if (profile == null) {
+          emit(const LoginErrorState(
+              error: 'Profile not found. Please complete signup.'));
+          return;
+        }
+
+        await AppLocalPrefs.setUserDetails(
+          uid: user.uid,
+          displayName: profile.fullName,
+          email: profile.email,
+          photoURL: user.photoURL,
+        );
+        await AppLocalPrefs.setProfile(profile);
+
+        emit(LoginLoadedState(user: user));
       } catch (error) {
-        emit(GoogleLoginErrorState(error: error.toString()));
+        emit(LoginErrorState(error: AuthService.errorMessage(error)));
       }
     });
   }

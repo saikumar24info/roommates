@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:room_mates/widgets/notification_card.dart';
+
 import '../../global.dart';
 import '../../utils/colors.dart';
 import '../../utils/constants.dart';
 import '../../utils/strings.dart';
 import '../../utils/text_utility.dart';
+import '../home/repo/home_repo.dart';
 
 class Notifications extends StatefulWidget {
   const Notifications({super.key});
@@ -16,12 +17,7 @@ class Notifications extends StatefulWidget {
 }
 
 class _NotificationsState extends State<Notifications> {
-  final DatabaseReference _notificationsRef = FirebaseDatabase.instance
-      .ref()
-      .child('Hyderabad')
-      .child('KPHB')
-      .child('Manikanta Boys Hostel')
-      .child('Notifications');
+  final HomeRepo _homeRepo = HomeRepo();
 
   @override
   Widget build(BuildContext context) {
@@ -46,9 +42,9 @@ class _NotificationsState extends State<Notifications> {
         padding: EdgeInsets.symmetric(
             horizontal: width(context) * 0.05,
             vertical: height(context) * 0.05),
-        child: StreamBuilder(
-          stream: _notificationsRef.onValue,
-          builder: (context, AsyncSnapshot<DatabaseEvent> snapshot) {
+        child: StreamBuilder<List<Map<String, dynamic>>>(
+          stream: _homeRepo.watchNotifications(),
+          builder: (context, snapshot) {
             if (snapshot.hasError) {
               return Center(
                 child: Text('Error: ${snapshot.error}',
@@ -63,48 +59,24 @@ class _NotificationsState extends State<Notifications> {
               );
             }
 
-            if (snapshot.hasData) {
-              var data = snapshot.data?.snapshot.value;
-
-              if (data is List) {
-                return ListView.builder(
-                  itemCount: data.length,
-                  itemBuilder: (context, index) {
-                    var notification = data[index];
-                    if (notification != null &&
-                        notification is Map<dynamic, dynamic>) {
-                      return notificationCard(
-                        context,
-                        notification['imageUrl'] ?? '',
-                        notification['title'] ?? '',
-                        notification['time'] ?? '',
-                        notification['message'] ?? '',
-                      );
-                    }
-                    return const SizedBox.shrink();
-                  },
-                );
-              } else if (data is Map<dynamic, dynamic>) {
-                List notifications = data.values.toList();
-                return ListView.builder(
-                  itemCount: notifications.length,
-                  itemBuilder: (context, index) {
-                    var notification = notifications[index];
-                    return notificationCard(
-                      context,
-                      notification['imageUrl'] ?? '',
-                      notification['title'] ?? '',
-                      notification['time'] ?? '',
-                      notification['message'] ?? '',
-                    );
-                  },
-                );
-              } else {
-                return const Center(child: Text(Strings.noNotifications));
-              }
+            final notifications = snapshot.data ?? [];
+            if (notifications.isEmpty) {
+              return const Center(child: Text(Strings.noNotifications));
             }
 
-            return const Center(child: Text(Strings.noNotifications));
+            return ListView.builder(
+              itemCount: notifications.length,
+              itemBuilder: (context, index) {
+                final notification = notifications[index];
+                return notificationCard(
+                  context,
+                  notification['imageUrl'] ?? '',
+                  notification['title'] ?? '',
+                  notification['time'] ?? '',
+                  notification['message'] ?? '',
+                );
+              },
+            );
           },
         ),
       ),

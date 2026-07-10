@@ -27,6 +27,7 @@ class _SpecificatonsState extends State<Specificatons> {
             onPressed: () => Navigator.pop(context),
             icon: Icon(
               Icons.arrow_back,
+              color: AppColors.white,
               size: height(context) * 30,
             )),
         title: TextUtility.headerText(

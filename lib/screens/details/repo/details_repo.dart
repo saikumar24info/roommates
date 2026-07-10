@@ -1,9 +1,7 @@
-import 'package:firebase_database/firebase_database.dart';
-
 import '../../../global.dart';
 
 abstract class DetailsRepo {
-  Future<DatabaseReference> registerUser(
+  Future<String?> registerUser(
     String fullName,
     String hostelName,
     int roomNumber,
@@ -17,9 +15,9 @@ abstract class DetailsRepo {
 
 class DetailsRepoImpl extends DetailsRepo {
   @override
-  Future<DatabaseReference> registerUser(fullName, hostelName, roomNumber,
+  Future<String?> registerUser(fullName, hostelName, roomNumber,
       joiningDate, roomType, amount, hostelAddress, phoneNumber) async {
-    DatabaseReference userRef = await hostelManagement.registerUser(
+    return hostelManagement.registerUser(
       name: fullName,
       phoneNumber: phoneNumber,
       hostelName: hostelName,
@@ -29,6 +27,5 @@ class DetailsRepoImpl extends DetailsRepo {
       amount: amount,
       hostelAddress: hostelAddress,
     );
-    return userRef;
   }
 }

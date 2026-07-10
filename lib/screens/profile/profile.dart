@@ -8,13 +8,11 @@ import 'package:room_mates/screens/profile/bloc/profile_bloc.dart';
 import 'package:room_mates/screens/profile/bloc/profile_event.dart';
 import 'package:room_mates/screens/profile/bloc/profile_state.dart';
 import 'package:room_mates/utils/constants.dart';
-import 'package:room_mates/utils/text_utility.dart';
 import 'package:room_mates/widgets/profile_tile.dart';
 
 import '../../utils/colors.dart';
 import '../../utils/shared_prefs.dart';
 import '../../utils/strings.dart';
-import '../details/details.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -26,6 +24,7 @@ class Profile extends StatefulWidget {
 class _ProfileState extends State<Profile> {
   late ProfileBloc profileBloc;
   Map<String, String?> user = {};
+  bool isAdmin = false;
 
   @override
   void initState() {
@@ -35,15 +34,18 @@ class _ProfileState extends State<Profile> {
   }
 
   Future<void> getUserDetails() async {
-    Map<String, String?> userDetails = await AppLocalPrefs.getUserDetails();
+    final userDetails = await AppLocalPrefs.getUserDetails();
+    final admin = await AppLocalPrefs.isAdmin();
     setState(() {
       user = userDetails;
+      isAdmin = admin;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       body: BlocConsumer<ProfileBloc, ProfileState>(
         listener: (context, state) {
           if (state is ProfileLogoutLoadingState) {
@@ -71,93 +73,136 @@ class _ProfileState extends State<Profile> {
   }
 
   Widget buildView(BuildContext context) {
-    return Center(
+    final name = user[AppConstants.userName] ?? Strings.noName;
+    final jobTitle = user[AppConstants.jobTitle] ?? 'Resident';
+    final hostel = user[AppConstants.hostelName] ?? '';
+
+    return SingleChildScrollView(
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          SizedBox(
-            height: height(context) * 120,
-          ),
-          SizedBox(
-            child: Image.asset(
-              Constants.userProfile,
-              color: AppColors.bodyText,
-              height: height(context) * 85,
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.fromLTRB(
+              width(context) * 20,
+              height(context) * 48,
+              width(context) * 20,
+              height(context) * 28,
             ),
-          ),
-          Padding(
-            padding: EdgeInsets.only(top: height(context) * 15),
-            child: TextUtility.headerText(
-                context,
-                user[AppConstants.userName] != null
-                    ? user[AppConstants.userName]!
-                    : Strings.noName,
-                AppColors.headerText),
-          ),
-          Padding(
-            padding: EdgeInsets.only(top: height(context) * 5),
-            child: TextUtility.titleText(
-                context, 'Software Engineer', AppColors.headerText),
-          ),
-          SizedBox(
-            height: height(context) * 35,
-          ),
-          user[AppConstants.userName] == 'sai kumar'
-              ? profileTile(
-                  context,
-                  Constants.userProfile,
-                  Strings.accountDetails,
-                  () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const Details(isFromLogin: false),
-                      ),
-                    );
-                  },
-                )
-              : Container(),
-          user[AppConstants.userName] == 'sai kumar'
-              ? profileTile(
-                  context,
-                  Constants.notification,
-                  Strings.addNotification,
-                  () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const AddNotification(),
-                      ),
-                    );
-                  },
-                )
-              : Container(),
-          profileTile(
-            context,
-            Constants.inviteFriend,
-            Strings.inviteFriend,
-            () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const InviteFriend(),
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [AppColors.primary, Color(0xFF6B74E8)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
             ),
+            child: Column(
+              children: [
+                CircleAvatar(
+                  radius: height(context) * 42,
+                  backgroundColor: AppColors.white.withValues(alpha: 0.2),
+                  child: Image.asset(
+                    Constants.userProfile,
+                    color: AppColors.white,
+                    height: height(context) * 50,
+                  ),
+                ),
+                SizedBox(height: height(context) * 14),
+                Text(
+                  name,
+                  style: TextStyle(
+                    fontSize: fontSize(context) * 22,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.white,
+                  ),
+                ),
+                SizedBox(height: height(context) * 4),
+                Text(
+                  jobTitle,
+                  style: TextStyle(
+                    fontSize: fontSize(context) * 15,
+                    color: AppColors.white.withValues(alpha: 0.9),
+                  ),
+                ),
+                if (hostel.isNotEmpty) ...[
+                  SizedBox(height: height(context) * 4),
+                  Text(
+                    hostel,
+                    style: TextStyle(
+                      fontSize: fontSize(context) * 13,
+                      color: AppColors.white.withValues(alpha: 0.8),
+                    ),
+                  ),
+                ],
+                if (isAdmin)
+                  Container(
+                    margin: EdgeInsets.only(top: height(context) * 10),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: width(context) * 12,
+                      vertical: height(context) * 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.white.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      'Admin',
+                      style: TextStyle(
+                        color: AppColors.white,
+                        fontSize: fontSize(context) * 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
-          profileTile(
-            context,
-            Constants.selectLanguage,
-            Strings.selectLanguage,
-            () => {},
+          Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: width(context) * 12,
+              vertical: height(context) * 20,
+            ),
+            child: Column(
+              children: [
+                if (isAdmin)
+                  profileTile(
+                    context,
+                    Constants.notification,
+                    Strings.addNotification,
+                    () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AddNotification(),
+                        ),
+                      );
+                    },
+                  ),
+                profileTile(
+                  context,
+                  Constants.inviteFriend,
+                  Strings.inviteFriend,
+                  () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const InviteFriend(),
+                    ),
+                  ),
+                ),
+                profileTile(
+                  context,
+                  Constants.getHelp,
+                  Strings.getHelp,
+                  () {},
+                ),
+                profileTile(
+                  context,
+                  Constants.logout,
+                  Strings.logout,
+                  () => profileBloc.add(ProfileLogoutEvent()),
+                ),
+              ],
+            ),
           ),
-          profileTile(
-            context,
-            Constants.getHelp,
-            Strings.getHelp,
-            () => {},
-          ),
-          profileTile(context, Constants.logout, Strings.logout, () async {
-            profileBloc.add(ProfileLogoutEvent());
-          }),
         ],
       ),
     );

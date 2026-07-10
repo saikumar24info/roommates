@@ -1,4 +1,3 @@
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:room_mates/screens/details/bloc/details_event.dart';
 import 'package:room_mates/screens/details/bloc/details_state.dart';
@@ -13,7 +12,7 @@ class DetailsBloc extends Bloc<DetailsEvent, DetailsState> {
       emit(RegisterUserLoadingState());
       try {
         UserDetailsModal userDetails = event.userDetailsModal;
-        DatabaseReference userRef = await detailsRepo.registerUser(
+        String? stayId = await detailsRepo.registerUser(
           userDetails.fullName,
           userDetails.hostelName,
           userDetails.roomNumber,
@@ -23,8 +22,8 @@ class DetailsBloc extends Bloc<DetailsEvent, DetailsState> {
           userDetails.hostelAddress,
           userDetails.phoneNumber,
         );
-        if (userRef.key != null) {
-          await AppLocalPrefs.setProfileToken(userRef.key);
+        if (stayId != null) {
+          await AppLocalPrefs.setProfileToken(stayId);
           emit(RegisterUserLoadedState(isUserRegistered: true));
         } else {
           emit(RegisterUserLoadedState(isUserRegistered: false));

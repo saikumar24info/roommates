@@ -7,10 +7,9 @@ import 'package:room_mates/screens/notification/modal/notification_modal.dart';
 
 import '../../global.dart';
 import '../../utils/colors.dart';
-import '../../utils/constants.dart';
 import '../../utils/strings.dart';
-import '../../utils/text_utility.dart';
 import '../../widgets/elevated_button.dart';
+import '../../widgets/section_header.dart';
 import '../../widgets/textinput.dart';
 
 class AddNotification extends StatefulWidget {
@@ -21,13 +20,15 @@ class AddNotification extends StatefulWidget {
 }
 
 class _AddNotificationState extends State<AddNotification> {
-  final _formKey = GlobalKey<FormState>();
-  final _notificationId = TextEditingController();
-  final _imageUrl = TextEditingController();
   final _title = TextEditingController();
-  final _time = TextEditingController();
   final _message = TextEditingController();
+  final _imageUrl = TextEditingController(
+    text:
+        'https://www.indianhealthyrecipes.com/wp-content/uploads/2022/07/moong-dal-dosa-recipe.jpg',
+  );
+
   late final NotificationBloc notificationBloc;
+
   @override
   void initState() {
     notificationBloc = BlocProvider.of<NotificationBloc>(context);
@@ -35,145 +36,117 @@ class _AddNotificationState extends State<AddNotification> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.white,
-      appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        centerTitle: false,
-        leading: IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: Icon(
-            Icons.arrow_back,
-            size: height(context) * 30,
-          ),
-        ),
-        title: TextUtility.headerText(
-            context, Strings.addNotification, AppColors.white),
-      ),
-      body: SingleChildScrollView(
-        child: BlocConsumer<NotificationBloc, NotificationState>(
-          listener: (context, state) {
-            if (state is NotificationSendLoadingState) {
-              utils.show(context);
-            }
-            if (state is NotificationSendLoadedState) {
-              utils.dismiss(context);
-            }
-            if (state is NotificationSendErrorState) {
-              utils.dismiss(context);
-            }
-          },
-          builder: (context, state) {
-            return detailsView();
-          },
-        ),
+  void dispose() {
+    _title.dispose();
+    _message.dispose();
+    _imageUrl.dispose();
+    super.dispose();
+  }
+
+  void _showMessage(String message, {bool isError = false}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isError ? Colors.red.shade700 : AppColors.green,
       ),
     );
   }
 
-  Widget detailsView() {
-    return Padding(
-      padding: const EdgeInsets.only(top: 5.0),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          children: [
-            SingleChildScrollView(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: width(context) * 15),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      height: height(context) * 30,
-                    ),
-                    Image.asset(
-                      Constants.logo,
-                      height: height(context) * 85,
-                      width: width(context) * 85,
-                    ),
-                    SizedBox(
-                      height: height(context) * 20,
-                    ),
-                    TextInput(
-                      hintText: Strings.enterNotificationNumber,
-                      textInputType: TextInputType.text,
-                      controller: _notificationId,
-                      preficIcon: Icon(
-                        Icons.home,
-                        size: height(context) * 26,
-                      ),
-                    ),
-                    SizedBox(
-                      height: height(context) * 20,
-                    ),
-                    TextInput(
-                      hintText: Strings.enterNotificationImageUrl,
-                      textInputType: TextInputType.number,
-                      controller: _imageUrl,
-                      preficIcon: Icon(
-                        Icons.home,
-                        size: height(context) * 26,
-                      ),
-                    ),
-                    SizedBox(height: height(context) * 20),
-                    TextInput(
-                      hintText: Strings.enterNotificationTitle,
-                      textInputType: TextInputType.text,
-                      controller: _title,
-                      preficIcon: Icon(
-                        Icons.lock,
-                        size: height(context) * 26,
-                      ),
-                    ),
-                    SizedBox(height: height(context) * 20),
-                    TextInput(
-                      hintText: Strings.enterNotificationTime,
-                      textInputType: TextInputType.text,
-                      controller: _time,
-                      preficIcon: Icon(
-                        Icons.lock,
-                        size: height(context) * 26,
-                      ),
-                    ),
-                    SizedBox(height: height(context) * 20),
-                    TextInput(
-                      hintText: Strings.enterNotificationMessage,
-                      textInputType: TextInputType.text,
-                      controller: _message,
-                      preficIcon: Icon(
-                        Icons.lock,
-                        size: height(context) * 26,
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: height(context) * 35),
-                      child: elevatedButton(context,
-                          buttonHeight: height(context) * 55,
-                          buttonWidth: width(context) * 220, onPress: () async {
-                        final notificationModal = NotificationModal(
-                            id: _notificationId.text,
-                            imageUrl: _imageUrl.text,
-                            title: _title.text,
-                            time: _time.text,
-                            message: _message.text);
-                        notificationBloc.add(SendNotificationEvent(
-                            notificationModal: notificationModal));
-                      },
-                          buttonText: Strings.sendNotification,
-                          fontSize: fontSize(context) * 18),
-                    ),
-                    SizedBox(
-                      height: height(context) * 50,
-                    ),
-                  ],
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        backgroundColor: AppColors.primary,
+        foregroundColor: AppColors.white,
+        title: Text(Strings.addNotification),
+      ),
+      body: BlocConsumer<NotificationBloc, NotificationState>(
+        listener: (context, state) {
+          if (state is NotificationSendLoadingState) {
+            utils.show(context);
+          }
+          if (state is NotificationSendLoadedState) {
+            utils.dismiss(context);
+            _showMessage('Notification sent successfully!');
+            _title.clear();
+            _message.clear();
+          }
+          if (state is NotificationSendErrorState) {
+            utils.dismiss(context);
+            _showMessage('Failed to send notification', isError: true);
+          }
+        },
+        builder: (context, state) {
+          return SingleChildScrollView(
+            padding: EdgeInsets.all(width(context) * 18),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SectionHeader(
+                  title: 'Broadcast Message',
+                  subtitle:
+                      'Send today\'s specials or announcements to your hostel residents',
                 ),
-              ),
+                TextInput(
+                  hintText: Strings.enterNotificationTitle,
+                  textInputType: TextInputType.text,
+                  controller: _title,
+                  preficIcon:
+                      Icon(Icons.title, size: height(context) * 24),
+                ),
+                SizedBox(height: height(context) * 14),
+                TextInput(
+                  hintText: Strings.enterNotificationMessage,
+                  textInputType: TextInputType.multiline,
+                  controller: _message,
+                  preficIcon:
+                      Icon(Icons.message_outlined, size: height(context) * 24),
+                ),
+                SizedBox(height: height(context) * 14),
+                TextInput(
+                  hintText: Strings.enterNotificationImageUrl,
+                  textInputType: TextInputType.url,
+                  controller: _imageUrl,
+                  preficIcon:
+                      Icon(Icons.image_outlined, size: height(context) * 24),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: height(context) * 28),
+                  child: elevatedButton(
+                    context,
+                    buttonHeight: height(context) * 54,
+                    buttonWidth: double.infinity,
+                    onPress: () {
+                      if (_title.text.trim().isEmpty ||
+                          _message.text.trim().isEmpty) {
+                        _showMessage('Title and message are required',
+                            isError: true);
+                        return;
+                      }
+
+                      final now = DateTime.now();
+                      final timeLabel =
+                          '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')} · ${now.day}/${now.month}/${now.year}';
+
+                      notificationBloc.add(SendNotificationEvent(
+                        notificationModal: NotificationModal(
+                          id: now.millisecondsSinceEpoch.toString(),
+                          imageUrl: _imageUrl.text.trim(),
+                          title: _title.text.trim(),
+                          time: timeLabel,
+                          message: _message.text.trim(),
+                        ),
+                      ));
+                    },
+                    buttonText: Strings.sendNotification,
+                    fontSize: fontSize(context) * 17,
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

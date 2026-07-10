@@ -10,12 +10,9 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     on<ProfileLogoutEvent>((event, emit) async {
       emit(ProfileLogoutLoadingState());
       try {
-        await userGoogleSignup.signOutGoogle().then((value) async {
-          emit(ProfileLogoutLoadedState(isLoggedOut: true));
-          await AppLocalPrefs.clearUser();
-        }).catchError((error) async {
-          emit(ProfileLogoutLoadedState(isLoggedOut: false));
-        });
+        await authService.signOut();
+        await AppLocalPrefs.clearUser();
+        emit(ProfileLogoutLoadedState(isLoggedOut: true));
       } catch (error) {
         emit(ProfileLogoutErrorState(error: error.toString()));
       }

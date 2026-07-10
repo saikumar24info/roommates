@@ -16,7 +16,7 @@ class NavigatorScreen extends StatefulWidget {
 class _NavigatorScreenState extends State<NavigatorScreen> {
   bool isLogged = false;
   bool isLoading = true;
-  bool hasProfileToken = false;
+  bool hasProfile = false;
 
   @override
   void initState() {
@@ -26,19 +26,17 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
 
   Future<void> _checkUserStatus() async {
     try {
-      String? userId = await AppLocalPrefs.getUserId();
-      String? profileToken = await AppLocalPrefs.getProfileToken();
+      final userId = await AppLocalPrefs.getUserId();
+      final filled = await AppLocalPrefs.getIsAccountDetailsFilled();
 
       setState(() {
         isLogged = userId != null && userId.isNotEmpty;
-        hasProfileToken = profileToken != null && profileToken.isNotEmpty;
+        hasProfile = filled;
         isLoading = false;
       });
     } catch (error) {
-      setState(() {
-        isLoading = false;
-      });
-      debugPrint("Error fetching user data: $error");
+      setState(() => isLoading = false);
+      debugPrint('Error fetching user data: $error');
     }
   }
 
@@ -59,6 +57,10 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
       return const Login();
     }
 
-    return hasProfileToken ? const Landing() : const Details(isFromLogin: true);
+    if (!hasProfile) {
+      return const Details(isFromLogin: true);
+    }
+
+    return const Landing();
   }
 }

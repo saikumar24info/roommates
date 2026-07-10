@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:room_mates/services/auth_service.dart';
 import 'package:room_mates/services/food_menu_update.dart';
-import 'package:room_mates/services/google_login.dart';
+import 'package:room_mates/services/hostel_service.dart';
 import 'package:room_mates/services/notification.dart';
+import 'package:room_mates/services/profile_service.dart';
 import 'package:room_mates/utils/config.dart';
 import 'package:room_mates/utils/util.dart';
 
 Config deviceConfig = Config();
-UserGoogleSignup userGoogleSignup = UserGoogleSignup();
+AuthService authService = AuthService();
+HostelService hostelService = HostelService();
+ProfileService profileService = ProfileService();
 Utils utils = Utils();
 HostelManagement hostelManagement = HostelManagement();
 NotificationServices notificationService = NotificationServices();

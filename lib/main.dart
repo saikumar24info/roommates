@@ -1,4 +1,3 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:room_mates/screens/details/bloc/details_bloc.dart';
@@ -7,13 +6,22 @@ import 'package:room_mates/screens/login/bloc/login_bloc.dart';
 import 'package:room_mates/screens/navigator.dart';
 import 'package:room_mates/screens/notification/bloc/notification_bloc.dart';
 import 'package:room_mates/screens/profile/bloc/profile_bloc.dart';
+import 'package:room_mates/screens/signup/bloc/signup_bloc.dart';
+import 'package:room_mates/utils/supabase_config.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
-    await Firebase.initializeApp();
+    await Supabase.initialize(
+      url: SupabaseConfig.url,
+      publishableKey: SupabaseConfig.anonKey,
+      authOptions: const FlutterAuthClientOptions(
+        authFlowType: AuthFlowType.pkce,
+      ),
+    );
   } catch (error) {
-    debugPrint("error $error");
+    debugPrint('Supabase init error: $error');
   }
   runApp(const RoomMates());
 }
@@ -26,6 +34,7 @@ class RoomMates extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (context) => LoginBloc()),
+        BlocProvider(create: (context) => SignupBloc()),
         BlocProvider(create: (context) => ProfileBloc()),
         BlocProvider(create: (context) => DetailsBloc()),
         BlocProvider(create: (context) => HomeBloc()),

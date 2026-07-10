@@ -8,7 +8,6 @@ import 'package:room_mates/screens/home/bloc/home_state.dart';
 import '../../global.dart';
 import '../../utils/colors.dart';
 import '../../utils/strings.dart';
-import '../../utils/text_utility.dart';
 
 class MyStay extends StatefulWidget {
   const MyStay({super.key});
@@ -19,6 +18,7 @@ class MyStay extends StatefulWidget {
 
 class _MyStayState extends State<MyStay> {
   late final HomeBloc homeBloc;
+
   @override
   void initState() {
     homeBloc = BlocProvider.of<HomeBloc>(context);
@@ -29,102 +29,123 @@ class _MyStayState extends State<MyStay> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.primary,
         centerTitle: false,
         leading: IconButton(
-            onPressed: () => Navigator.pop(context),
-            icon: Icon(
-              Icons.arrow_back,
-              size: height(context) * 30,
-            )),
-        title: TextUtility.headerText(context, Strings.myStay, AppColors.white),
+          color: AppColors.white,
+          onPressed: () => Navigator.pop(context),
+          icon: Icon(Icons.arrow_back, size: height(context) * 28),
+        ),
+        title: Text(
+          Strings.myStay,
+          style: TextStyle(
+            fontSize: fontSize(context) * 20,
+            fontWeight: FontWeight.w600,
+            color: AppColors.white,
+          ),
+        ),
       ),
       body: BlocConsumer<HomeBloc, HomeSates>(
-          builder: (context, state) {
-            if (state is MyStayDetailsLoadingState) {
-              return const Center(
-                child: SpinKitWave(
-                    color: AppColors.primary, type: SpinKitWaveType.start),
-              );
-            }
-            if (state is MyStayDetailsLoadedState) {
-              return buildView(state.data);
-                        }
-            if (state is MyStayDetailsLErrorState) {
+        builder: (context, state) {
+          if (state is MyStayDetailsLoadingState) {
+            return const Center(
+              child: SpinKitWave(
+                color: AppColors.primary,
+                type: SpinKitWaveType.start,
+              ),
+            );
+          }
+          if (state is MyStayDetailsLoadedState) {
+            if (state.data.containsKey('message')) {
               return Center(
-                child: Text(state.error.toString()),
+                child: Text(
+                  state.data['message'].toString(),
+                  style: TextStyle(fontSize: fontSize(context) * 16),
+                ),
               );
             }
-            return Container();
-          },
-          listener: (context, state) {}),
+            return buildView(state.data);
+          }
+          if (state is MyStayDetailsLErrorState) {
+            return Center(child: Text(state.error.toString()));
+          }
+          return const SizedBox.shrink();
+        },
+        listener: (context, state) {},
+      ),
     );
   }
 
   Widget buildView(Map<String, dynamic> userData) {
     return SingleChildScrollView(
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-            horizontal: width(context) * 5, vertical: height(context) * 10),
-        child: Column(
-          children: [
-            Card(
-              elevation: 2,
-              child: Container(
-                padding: EdgeInsets.symmetric(
-                    horizontal: width(context) * 10,
-                    vertical: height(context) * 15),
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(width(context) * 10)),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TextUtility.headerText(context, 'Manikanta Boys Hostel-2',
-                        AppColors.headerText),
-                    SizedBox(
-                      height: height(context) * 5,
-                    ),
-                    TextUtility.subTitleText(
-                        context,
-                        'Room No: ${userData['roomNumber'] ?? ''}',
-                        AppColors.headerText),
-                    SizedBox(
-                      height: height(context) * 5,
-                    ),
-                    TextUtility.subTitleText(
-                        context,
-                        'Joining Date: ${userData['joiningDate'] ?? ''}',
-                        AppColors.headerText),
-                    SizedBox(
-                      height: height(context) * 5,
-                    ),
-                    TextUtility.subTitleText(
-                        context,
-                        'Type: ${userData['roomType'] ?? ''}',
-                        AppColors.headerText),
-                    SizedBox(
-                      height: height(context) * 5,
-                    ),
-                    TextUtility.subTitleText(
-                        context,
-                        'Fee: ${userData['amount'] ?? ''}/- Monthly',
-                        AppColors.headerText),
-                    SizedBox(
-                      height: height(context) * 5,
-                    ),
-                    TextUtility.subTitleText(
-                        context,
-                        'Address: LIG: 333, RoadNo: 3, KPHB colony, Kukatpally',
-                        AppColors.headerText,
-                        maxLines: 3)
-                  ],
+      padding: EdgeInsets.all(width(context) * 16),
+      child: Card(
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Padding(
+          padding: EdgeInsets.all(width(context) * 18),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                userData['hostelName']?.toString() ?? '',
+                style: TextStyle(
+                  fontSize: fontSize(context) * 20,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primary,
                 ),
               ),
-            )
-          ],
+              SizedBox(height: height(context) * 16),
+              _infoRow(Icons.person_outline, 'Name', userData['fullName']),
+              _infoRow(Icons.work_outline, 'Job', userData['jobTitle']),
+              _infoRow(Icons.phone_outlined, 'Phone', userData['phoneNumber']),
+              _infoRow(Icons.bed_outlined, 'Sharing', userData['roomType']),
+              _infoRow(Icons.payments_outlined, 'Monthly Fee',
+                  '₹${userData['amount']}/-'),
+              _infoRow(Icons.calendar_today_outlined, 'Payment Date',
+                  userData['paymentDate']),
+              _infoRow(Icons.location_on_outlined, 'Address',
+                  userData['hostelAddress']),
+            ],
+          ),
         ),
+      ),
+    );
+  }
+
+  Widget _infoRow(IconData icon, String label, dynamic value) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: height(context) * 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: height(context) * 20, color: AppColors.primary),
+          SizedBox(width: width(context) * 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: fontSize(context) * 12,
+                    color: AppColors.bodyText,
+                  ),
+                ),
+                Text(
+                  value?.toString() ?? '-',
+                  style: TextStyle(
+                    fontSize: fontSize(context) * 15,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.headerText,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

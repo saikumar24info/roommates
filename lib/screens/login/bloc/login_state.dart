@@ -1,27 +1,34 @@
 import 'package:equatable/equatable.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:room_mates/model/app_user.dart';
 
 abstract class LoginState extends Equatable {
   const LoginState();
 }
 
-class GoogleLoginLoadingState extends LoginState {
+class LoginInitialState extends LoginState {
   @override
   List<Object?> get props => [];
 }
 
-class GoogleLoginLoadedState extends LoginState {
-  final User? user;
-
-  const GoogleLoginLoadedState({required this.user});
+class LoginLoadingState extends LoginState {
   @override
   List<Object?> get props => [];
 }
 
-class GoogleLoginErrorState extends LoginState {
+class LoginLoadedState extends LoginState {
+  final AppUser user;
+
+  const LoginLoadedState({required this.user});
+
+  @override
+  List<Object?> get props => [user];
+}
+
+class LoginErrorState extends LoginState {
   final String error;
 
-  const GoogleLoginErrorState({required this.error});
+  const LoginErrorState({required this.error});
+
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [error];
 }
