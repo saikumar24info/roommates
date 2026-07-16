@@ -31,8 +31,10 @@ class AppConstants {
   static const profileUrl = 'PROFILE_URL';
   static const isFilled = 'IS_FILLED';
   static const email = 'EMAIL';
+  static const phone = 'PHONE';
   static const jobTitle = 'JOB_TITLE';
   static const hostelId = 'HOSTEL_ID';
   static const hostelName = 'HOSTEL_NAME';
   static const isAdmin = 'IS_ADMIN';
+  static const userRole = 'USER_ROLE';
 }

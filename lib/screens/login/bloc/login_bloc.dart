@@ -27,7 +27,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           uid: user.uid,
           displayName: profile.fullName,
           email: profile.email,
-          photoURL: user.photoURL,
+          photoURL: profile.avatarUrl ?? user.photoURL,
         );
         await AppLocalPrefs.setProfile(profile);
 

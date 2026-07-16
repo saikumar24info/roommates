@@ -50,19 +50,38 @@ class _SignupState extends State<Signup> {
   Future<void> _loadOptions() async {
     try {
       final hostels = await hostelService.fetchHostels();
-      final sharing = await hostelService.fetchSharingTypes();
       if (!mounted) return;
       setState(() {
         _hostels = hostels;
-        _sharingTypes = sharing;
         _selectedHostel = hostels.isNotEmpty ? hostels.first : null;
-        _selectedSharing = sharing.isNotEmpty ? sharing.first : null;
         _loadingOptions = false;
       });
+      if (_selectedHostel != null) {
+        await _loadRentPlansForHostel(_selectedHostel!);
+      }
     } catch (e) {
       if (!mounted) return;
       setState(() => _loadingOptions = false);
       _showError('Could not load hostel data. Please try again.');
+    }
+  }
+
+  Future<void> _loadRentPlansForHostel(Hostel hostel) async {
+    try {
+      final plans =
+          await hostelService.fetchRentOptionsForHostel(hostel.id);
+      if (!mounted) return;
+      setState(() {
+        _sharingTypes = plans;
+        _selectedSharing = plans.isNotEmpty ? plans.first : null;
+      });
+    } catch (_) {
+      final fallback = await hostelService.fetchSharingTypes();
+      if (!mounted) return;
+      setState(() {
+        _sharingTypes = fallback;
+        _selectedSharing = fallback.isNotEmpty ? fallback.first : null;
+      });
     }
   }
 
@@ -217,8 +236,12 @@ class _SignupState extends State<Signup> {
                               HostelDropdown(
                                 value: _selectedHostel,
                                 hostels: _hostels,
-                                onChanged: (h) =>
-                                    setState(() => _selectedHostel = h),
+                                onChanged: (h) async {
+                                  setState(() => _selectedHostel = h);
+                                  if (h != null) {
+                                    await _loadRentPlansForHostel(h);
+                                  }
+                                },
                               ),
                               SizedBox(height: height(context) * 16),
                               SharingDropdown(

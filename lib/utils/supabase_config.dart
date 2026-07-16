@@ -1,5 +1,6 @@
 /// Supabase project credentials.
-/// Replace with your project URL and anon key from the Supabase dashboard.
+/// Prefer --dart-define for SUPABASE_URL / SUPABASE_ANON_KEY in production builds.
+/// Roles (admin / super_admin) are NEVER defined in the app — only in Supabase.
 class SupabaseConfig {
   static const url = String.fromEnvironment(
     'SUPABASE_URL',
@@ -15,7 +16,4 @@ class SupabaseConfig {
   static const city = 'Hyderabad';
   static const area = 'KPHB';
   static const defaultHostel = 'Manikanta Boys Hostel';
-
-  /// Sign up with this email to get admin access (send notifications).
-  static const adminEmail = 'admin@roommates.com';
 }

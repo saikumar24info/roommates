@@ -55,6 +55,12 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Allow Room Mates to access your photos so you can set a profile picture.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Allow Room Mates to use the camera so you can take a profile picture.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Allow Room Mates to access the microphone when recording video for profile updates.</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 	<key>CADisableMinimumFrameDurationOnPhone</key>

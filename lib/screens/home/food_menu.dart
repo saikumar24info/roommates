@@ -33,6 +33,7 @@ class _FoodMenuState extends State<FoodMenu> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.primary,
         centerTitle: false,
@@ -58,7 +59,19 @@ class _FoodMenuState extends State<FoodMenu> {
           }
 
           if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return Center(
+              child: Padding(
+                padding: EdgeInsets.all(width(context) * 24),
+                child: Text(
+                  'Error: ${snapshot.error}',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: AppColors.bodyText,
+                    fontSize: fontSize(context) * 14,
+                  ),
+                ),
+              ),
+            );
           }
 
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
@@ -85,54 +98,35 @@ class _FoodMenuState extends State<FoodMenu> {
             return const Center(child: Text(Strings.noData));
           }
 
-          return SingleChildScrollView(
-            child: Padding(
-              padding: EdgeInsets.only(
-                top: height(context) * 10,
-                bottom: 4,
-                left: width(context) * 5,
-                right: width(context) * 5,
-              ),
-              child: Column(
+          return ListView.builder(
+            padding: EdgeInsets.fromLTRB(
+              width(context) * 14,
+              height(context) * 12,
+              width(context) * 14,
+              height(context) * 24,
+            ),
+            itemCount: sortedMenu.length,
+            itemBuilder: (context, dayIndex) {
+              final dayMenu = sortedMenu[dayIndex];
+              final meals = dayMenu['meals'] as List<MenuItemData>;
+              return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: sortedMenu.length,
-                    itemBuilder: (context, dayIndex) {
-                      final dayMenu = sortedMenu[dayIndex];
-                      final meals = dayMenu['meals'] as List<MenuItemData>;
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(height: height(context) * 2),
-                          ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: meals.length,
-                            itemBuilder: (context, mealIndex) {
-                              final meal = meals[mealIndex];
-                              return foodMenuCard(
-                                context,
-                                meal.weekday,
-                                meal.time,
-                                meal.image,
-                                meal.title,
-                                meal.description,
-                                meal.isVeg,
-                                mealIndex,
-                              );
-                            },
-                          ),
-                          SizedBox(height: height(context) * 5),
-                        ],
-                      );
-                    },
-                  ),
+                  for (var mealIndex = 0; mealIndex < meals.length; mealIndex++)
+                    foodMenuCard(
+                      context,
+                      meals[mealIndex].weekday,
+                      meals[mealIndex].time,
+                      meals[mealIndex].image,
+                      meals[mealIndex].title,
+                      meals[mealIndex].description,
+                      meals[mealIndex].isVeg,
+                      mealIndex,
+                    ),
+                  SizedBox(height: height(context) * 8),
                 ],
-              ),
-            ),
+              );
+            },
           );
         },
       ),

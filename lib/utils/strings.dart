@@ -1,5 +1,6 @@
 class Strings {
   static const edit = 'Edit';
+  static const save = 'Save';
   static const profile = 'Profile';
   static const home = 'Home';
   static const notifications = 'Notifications';
@@ -8,6 +9,19 @@ class Strings {
   static const getHelp = 'Get Help';
   static const inviteFriend = 'Invite a Friend';
   static const welcome = 'Welcome ';
+  static const welcomeGreeting = 'Welcome back';
+  static const homeSubtitle = 'Your stay at a glance';
+  static const homeQuickActions = 'Quick actions';
+  static const firstNameLabel = 'First Name';
+  static const lastNameLabel = 'Last Name';
+  static const profileUpdated = 'Profile updated successfully';
+  static const paymentOverview = 'Payment overview';
+  static const staySummary = 'Stay summary';
+  static const payReminder = 'Payment tip';
+  static const specsCardHint = 'Amenities & facilities';
+  static const foodCardHint = 'Today\'s menu';
+  static const rentCardHint = 'Dues & stay fee';
+  static const serviceCardHint = 'Report an issue';
   static const selectLanguage = 'Select Language';
   static const logout = 'Logout';
   static const foodMenu = 'Food Menu';
@@ -67,4 +81,59 @@ class Strings {
   static const enterNotificationTime = 'Enter Notification Time';
   static const enterNotificationMessage = 'Enter Notification Message';
   static const sendNotification = 'Send Notification';
+  static const personalInfo = 'Personal Info';
+  static const stayInfo = 'Stay Info';
+  static const support = 'Support';
+  static const helpSubtitle =
+      'Need assistance with your stay, payments, or the app? Reach out and we will help you.';
+  static const emailSupport = 'Email Support';
+  static const callSupport = 'Call Hostel';
+  static const supportEmail = 'support@roommates.com';
+  static const supportPhone = '+91 98765 43210';
+  static const logoutConfirmTitle = 'Log out?';
+  static const logoutConfirmMessage =
+      'You will need to sign in again to access your stay details.';
+  static const cancel = 'Cancel';
+  static const emailLabel = 'Email';
+  static const phoneLabel = 'Phone';
+  static const jobLabel = 'Job Title';
+  static const sharingLabel = 'Sharing';
+  static const monthlyFee = 'Monthly Fee';
+  static const paymentDateLabel = 'Payment Date';
+  static const addressLabel = 'Address';
+  static const resident = 'Resident';
+  static const rentPayments = 'Rent & Payments';
+  static const serviceRequests = 'Service Requests';
+  static const monthlyRent = 'Monthly Rent';
+  static const dueDate = 'Payment Due';
+  static const rentHint =
+      'Pay your hostel rent on the due date to keep your stay active. Contact the warden if you need a receipt.';
+  static const newRequest = 'New Request';
+  static const requestCategory = 'Category';
+  static const requestTitle = 'Title';
+  static const requestDescription = 'Description';
+  static const submitRequest = 'Submit Request';
+  static const noRequests = 'No service requests yet';
+  static const requestSubmitted = 'Request submitted successfully';
+  static const changePhoto = 'Change photo';
+  static const takePhoto = 'Take photo';
+  static const chooseGallery = 'Choose from gallery';
+  static const removePhoto = 'Remove photo';
+  static const photoUpdated = 'Profile photo updated';
+  static const photoRemoved = 'Profile photo removed';
+  static const adminConsole = 'Admin Console';
+  static const superAdminConsole = 'Super Admin Console';
+  static const selectHostel = 'Select hostel';
+  static const manageHostelInfo = 'Hostel Info';
+  static const manageFoodMenu = 'Manage Food Menu';
+  static const manageSpecifications = 'Manage Specifications';
+  static const manageNotifications = 'Manage Notifications';
+  static const manageRentPlans = 'Manage Rent Plans';
+  static const manageServiceRequests = 'Service Request Queue';
+  static const manageHostels = 'Manage Hostels';
+  static const assignAdmins = 'Assign Admins';
+  static const superAdminTools = 'Super admin tools';
+  static const saveChanges = 'Save';
+  static const savedSuccessfully = 'Saved successfully';
+  static const hostelManagement = 'Hostel Management';
 }

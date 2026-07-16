@@ -8,20 +8,28 @@ class HostelService {
   Future<void> ensureSeedData() async {
     if (SupabaseService.client.auth.currentSession == null) return;
 
-    final hostelRows =
-        await SupabaseService.client.from('hostels').select('id, name, city, area');
+    final hostelRows = await SupabaseService.client
+        .from('hostels')
+        .select('id, name, city, area');
     if ((hostelRows as List).isEmpty) return;
 
     final menu = HostelMenuData.weeklyMenu();
     for (final hostel in hostelRows) {
-      await SupabaseService.client.from('food_menus').upsert({
+      final existing = await SupabaseService.client
+          .from('food_menus')
+          .select('id')
+          .eq('hostel_id', hostel['id'])
+          .maybeSingle();
+      if (existing != null) continue;
+
+      await SupabaseService.client.from('food_menus').insert({
         'hostel_id': hostel['id'],
         'city': hostel['city'],
         'area': hostel['area'],
         'hostel_name': hostel['name'],
         'menu_data': menu,
         'updated_at': DateTime.now().toIso8601String(),
-      }, onConflict: 'hostel_id');
+      });
     }
   }
 
@@ -47,5 +55,34 @@ class HostelService {
     return (response as List)
         .map((row) => SharingType.fromMap(Map<String, dynamic>.from(row)))
         .toList();
+  }
+
+  /// Prefers per-hostel rent amounts; keeps global sharing_types ids for FK.
+  Future<List<SharingType>> fetchRentOptionsForHostel(String hostelId) async {
+    final global = await fetchSharingTypes();
+    try {
+      final response = await SupabaseService.client
+          .from('hostel_rent_plans')
+          .select()
+          .eq('hostel_id', hostelId)
+          .order('sort_order');
+      final plans = response as List;
+      if (plans.isEmpty) return global;
+
+      final byLabel = {for (final g in global) g.label: g};
+      return plans.map((row) {
+        final map = Map<String, dynamic>.from(row);
+        final label = map['label'] as String? ?? '';
+        final globalMatch = byLabel[label];
+        return SharingType(
+          id: globalMatch?.id ?? (global.isNotEmpty ? global.first.id : map['id'] as String),
+          label: label,
+          amount: (map['amount'] as num).toDouble(),
+          sortOrder: (map['sort_order'] as num?)?.toInt() ?? 0,
+        );
+      }).toList();
+    } catch (_) {
+      return global;
+    }
   }
 }
